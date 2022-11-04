@@ -1,4 +1,4 @@
-/ Teste do sensor de temperatura e umidade DHT11 com exibição no display
+// Teste do sensor de temperatura e umidade DHT11 com exibição no display
 // Escrito por P&D - PoliCerevisiae
 
 // É requerido as seguintes bibliotecas:
@@ -12,6 +12,7 @@
 #include <Adafruit_SSD1306.h>
 
 //Insira as especificações:
+const int pinBuzzer = 4;
 const int buttonPin = 2;
 int buttonState = 0;
 int iniciou = 0;
@@ -54,6 +55,7 @@ void setup() {
   delay(500);
   dht.begin();
   pinMode(buttonPin, INPUT);
+  pinMode (pinBuzzer, OUTPUT);
 
   // Inicializa OLED com endereço I2C 0x3C (para 128x64)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -67,7 +69,7 @@ void loop() {
   delay(dt);
   display.clearDisplay();
   buttonState = digitalRead(buttonPin);
-  if (iniciou == 1 || buttonState == 1)       {
+  if (iniciou == 1 || buttonState == 1)       { 
     iniciou = 1;
 
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -81,6 +83,7 @@ void loop() {
       Serial.print(F("Falha na leitura do sensor DHT11"));
       return;
     }
+    
     Serial.print(1.02 * thermocouple.readCelsius() - 2.88);
     Serial.print(",");
     Serial.print(0.921 * text - 2.36);
@@ -90,6 +93,13 @@ void loop() {
     float ti = 1.02 * thermocouple.readCelsius() - 2.88;
     float te = 0.921 * text - 2.36;
     float u = 0.948 * h + 6.68;
+
+    if (ti > 27.0)     {
+      tone (pinBuzzer, 440);
+    }
+    else      {
+      noTone(pinBuzzer);
+    }
     
     display.setTextSize(2);
     display.setTextColor(WHITE);    
